@@ -1,0 +1,364 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "autoname": "naming_series:",
+ "creation": "2025-09-19 18:10:15.303312",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "naming_series",
+  "title",
+  "item_code",
+  "item_name",
+  "sample_code",
+  "column_break_6",
+  "company",
+  "test_date",
+  "inspected_by",
+  "verified_by",
+  "section_break_11",
+  "reference_type",
+  "reference_name",
+  "column_break_14",
+  "batch_no",
+  "serial_no",
+  "warehouse",
+  "section_break_18",
+  "laboratory_processes",
+  "section_break_20",
+  "status",
+  "column_break_22",
+  "overall_result",
+  "remarks",
+  "section_break_timeline",
+  "received_date",
+  "analysis_start_date",
+  "analysis_end_date",
+  "column_break_priority",
+  "priority",
+  "expected_completion_date",
+  "section_break_specifications",
+  "specification_document",
+  "test_method",
+  "equipment_used",
+  "section_break_approval",
+  "reviewed_by",
+  "review_date",
+  "approved_by",
+  "approval_date",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "naming_series",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Serie",
+   "options": "MFG-LQC-.YYYY.-",
+   "reqd": 1,
+   "set_only_once": 1
+  },
+  {
+   "bold": 1,
+   "fieldname": "title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "T\u00edtulo",
+   "reqd": 1
+  },
+  {
+   "fieldname": "item_code",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "C\u00f3digo del Producto",
+   "options": "Item",
+   "reqd": 1
+  },
+  {
+   "fetch_from": "item_code.item_name",
+   "fieldname": "item_name",
+   "fieldtype": "Data",
+   "label": "Nombre del Producto",
+   "read_only": 1
+  },
+  {
+   "fieldname": "sample_code",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "C\u00f3digo de Muestra",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_6",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Your Company",
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1
+  },
+  {
+   "default": "Today",
+   "fieldname": "test_date",
+   "fieldtype": "Date",
+   "label": "Fecha de Prueba",
+   "reqd": 1
+  },
+  {
+   "fieldname": "inspected_by",
+   "fieldtype": "Link",
+   "label": "Inspeccionado Por",
+   "options": "User"
+  },
+  {
+   "fieldname": "verified_by",
+   "fieldtype": "Link",
+   "label": "Verificado Por",
+   "options": "User"
+  },
+  {
+   "fieldname": "section_break_11",
+   "fieldtype": "Section Break",
+   "label": "Referencias"
+  },
+  {
+   "fieldname": "reference_type",
+   "fieldtype": "Select",
+   "label": "Tipo de Referencia",
+   "options": "\nSales Order\nWork Order\nPurchase Order\nMaterial Request"
+  },
+  {
+   "fieldname": "reference_name",
+   "fieldtype": "Dynamic Link",
+   "label": "Nombre de Referencia",
+   "options": "reference_type"
+  },
+  {
+   "fieldname": "column_break_14",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "batch_no",
+   "fieldtype": "Link",
+   "label": "N\u00famero de Lote",
+   "options": "Batch"
+  },
+  {
+   "fieldname": "serial_no",
+   "fieldtype": "Link",
+   "label": "N\u00famero de Serie",
+   "options": "Serial No"
+  },
+  {
+   "fieldname": "warehouse",
+   "fieldtype": "Link",
+   "label": "Almac\u00e9n",
+   "options": "Warehouse"
+  },
+  {
+   "fieldname": "section_break_18",
+   "fieldtype": "Section Break",
+   "label": "Procesos de Laboratorio"
+  },
+  {
+   "fieldname": "laboratory_processes",
+   "fieldtype": "Table",
+   "label": "Procesos de Laboratorio",
+   "options": "Laboratory Process Detail"
+  },
+  {
+   "fieldname": "section_break_20",
+   "fieldtype": "Section Break",
+   "label": "Resultados"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "status",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "Estado",
+   "options": "Pending\nIn Progress\nCompleted\nApproved\nRejected"
+  },
+  {
+   "fieldname": "column_break_22",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Pending",
+   "fieldname": "overall_result",
+   "fieldtype": "Select",
+   "label": "Resultado General",
+   "options": "Pass\nFail\nPending"
+  },
+  {
+   "fieldname": "remarks",
+   "fieldtype": "Text",
+   "label": "Observaciones"
+  },
+  {
+   "fieldname": "section_break_timeline",
+   "fieldtype": "Section Break",
+   "label": "Cronograma"
+  },
+  {
+   "fieldname": "received_date",
+   "fieldtype": "Date",
+   "label": "Fecha de Recepci\u00f3n de Muestra"
+  },
+  {
+   "fieldname": "analysis_start_date",
+   "fieldtype": "Date",
+   "label": "Fecha de Inicio de An\u00e1lisis"
+  },
+  {
+   "fieldname": "analysis_end_date",
+   "fieldtype": "Date",
+   "label": "Fecha de Fin de An\u00e1lisis"
+  },
+  {
+   "fieldname": "column_break_priority",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "Normal",
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "label": "Prioridad",
+   "options": "Baja\nNormal\nAlta\nUrgente"
+  },
+  {
+   "fieldname": "expected_completion_date",
+   "fieldtype": "Date",
+   "label": "Fecha Esperada de Finalizaci\u00f3n"
+  },
+  {
+   "fieldname": "section_break_specifications",
+   "fieldtype": "Section Break",
+   "label": "Especificaciones"
+  },
+  {
+   "fieldname": "specification_document",
+   "fieldtype": "Attach",
+   "label": "Documento de Especificaci\u00f3n"
+  },
+  {
+   "fieldname": "test_method",
+   "fieldtype": "Data",
+   "label": "M\u00e9todo de Prueba"
+  },
+  {
+   "fieldname": "equipment_used",
+   "fieldtype": "Small Text",
+   "label": "Equipos Utilizados"
+  },
+  {
+   "fieldname": "section_break_approval",
+   "fieldtype": "Section Break",
+   "label": "Flujo de Aprobaci\u00f3n"
+  },
+  {
+   "fieldname": "reviewed_by",
+   "fieldtype": "Link",
+   "label": "Revisado Por",
+   "options": "User"
+  },
+  {
+   "fieldname": "review_date",
+   "fieldtype": "Date",
+   "label": "Fecha de Revisi\u00f3n"
+  },
+  {
+   "fieldname": "approved_by",
+   "fieldtype": "Link",
+   "label": "Aprobado Por",
+   "options": "User"
+  },
+  {
+   "fieldname": "approval_date",
+   "fieldtype": "Date",
+   "label": "Fecha de Aprobaci\u00f3n"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Modificado Desde",
+   "no_copy": 1,
+   "options": "Laboratory Quality Control",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2025-09-19 19:07:52.425970",
+ "modified_by": "Administrator",
+ "module": "Quality Management",
+ "name": "Laboratory Quality Control",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "amend": 1,
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "cancel": 1,
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Quality Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Stock Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Stock User",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
