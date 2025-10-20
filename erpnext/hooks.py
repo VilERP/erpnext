@@ -28,13 +28,6 @@ web_include_js = "erpnext-web.bundle.js"
 web_include_css = "erpnext-web.bundle.css"
 email_css = "email_erpnext.bundle.css"
 
-doctype_js = {
-	"Address": "public/js/address.js",
-	"Communication": "public/js/communication.js",
-	"Event": "public/js/event.js",
-	"Newsletter": "public/js/newsletter.js",
-	"Contact": "public/js/contact.js",
-}
 doctype_list_js = {
 	"Code List": [
 		"edi/doctype/code_list/code_list_import.js",
@@ -666,3 +659,11 @@ default_log_clearing_doctypes = {
 export_python_type_annotations = True
 
 fields_for_group_similar_items = ["qty", "amount"]
+
+# Agregar JavaScript SUNAT
+
+
+
+doctype_js = {
+    "Sales Invoice": "public/js/sales_invoice_sunat_standard.js"
+}

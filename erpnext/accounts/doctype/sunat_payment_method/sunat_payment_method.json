@@ -1,0 +1,117 @@
+{
+ "actions": [],
+ "autoname": "field:codigo_sunat",
+ "creation": "2025-01-01 00:00:00.000000",
+ "description": "Métodos de Pago según SUNAT",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "codigo_sunat",
+  "nombre_metodo",
+  "column_break_3",
+  "descripcion",
+  "activo",
+  "section_break_6",
+  "requiere_numero_operacion",
+  "requiere_fecha_operacion",
+  "column_break_9",
+  "permite_fraccionamiento",
+  "dias_credito_maximo"
+ ],
+ "fields": [
+  {
+   "fieldname": "codigo_sunat",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Código SUNAT",
+   "length": 3,
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "nombre_metodo",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Nombre del Método",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "descripcion",
+   "fieldtype": "Small Text",
+   "label": "Descripción"
+  },
+  {
+   "default": "1",
+   "fieldname": "activo",
+   "fieldtype": "Check",
+   "label": "Activo"
+  },
+  {
+   "fieldname": "section_break_6",
+   "fieldtype": "Section Break",
+   "label": "Configuración"
+  },
+  {
+   "fieldname": "requiere_numero_operacion",
+   "fieldtype": "Check",
+   "label": "Requiere Número de Operación"
+  },
+  {
+   "fieldname": "requiere_fecha_operacion",
+   "fieldtype": "Check",
+   "label": "Requiere Fecha de Operación"
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "permite_fraccionamiento",
+   "fieldtype": "Check",
+   "label": "Permite Fraccionamiento"
+  },
+  {
+   "fieldname": "dias_credito_maximo",
+   "fieldtype": "Int",
+   "label": "Días de Crédito Máximo"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "SUNAT Payment Method",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "report": 1,
+   "role": "Accounts Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

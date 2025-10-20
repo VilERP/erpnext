@@ -1,0 +1,192 @@
+{
+ "actions": [],
+ "autoname": "field:company",
+ "creation": "2025-01-01 00:00:00.000000",
+ "description": "Configuración SUNAT por Empresa",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "company",
+  "ruc",
+  "column_break_3",
+  "razon_social",
+  "regimen_tributario",
+  "section_break_6",
+  "direccion_fiscal",
+  "ubigeo",
+  "column_break_9",
+  "telefono",
+  "email_facturacion",
+  "section_break_12",
+  "usuario_sunat",
+  "password_sunat",
+  "column_break_15",
+  "certificado_digital",
+  "password_certificado",
+  "section_break_18",
+  "ambiente_sunat",
+  "url_servicio_sunat",
+  "column_break_21",
+  "codigo_establecimiento",
+  "activo"
+ ],
+ "fields": [
+  {
+   "fieldname": "company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Empresa",
+   "options": "Company",
+   "reqd": 1,
+   "unique": 1
+  },
+  {
+   "fieldname": "ruc",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "RUC",
+   "length": 11,
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_3",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "razon_social",
+   "fieldtype": "Data",
+   "label": "Razón Social",
+   "reqd": 1
+  },
+  {
+   "fieldname": "regimen_tributario",
+   "fieldtype": "Select",
+   "label": "Régimen Tributario",
+   "options": "\nRégimen General\nRégimen Especial\nRégimen MYPE Tributario\nRégimen Único Simplificado"
+  },
+  {
+   "fieldname": "section_break_6",
+   "fieldtype": "Section Break",
+   "label": "Información Fiscal"
+  },
+  {
+   "fieldname": "direccion_fiscal",
+   "fieldtype": "Small Text",
+   "label": "Dirección Fiscal"
+  },
+  {
+   "fieldname": "ubigeo",
+   "fieldtype": "Data",
+   "label": "Ubigeo",
+   "length": 6
+  },
+  {
+   "fieldname": "column_break_9",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "telefono",
+   "fieldtype": "Data",
+   "label": "Teléfono"
+  },
+  {
+   "fieldname": "email_facturacion",
+   "fieldtype": "Data",
+   "label": "Email de Facturación"
+  },
+  {
+   "fieldname": "section_break_12",
+   "fieldtype": "Section Break",
+   "label": "Credenciales SUNAT"
+  },
+  {
+   "fieldname": "usuario_sunat",
+   "fieldtype": "Data",
+   "label": "Usuario SUNAT"
+  },
+  {
+   "fieldname": "password_sunat",
+   "fieldtype": "Password",
+   "label": "Contraseña SUNAT"
+  },
+  {
+   "fieldname": "column_break_15",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "certificado_digital",
+   "fieldtype": "Attach",
+   "label": "Certificado Digital"
+  },
+  {
+   "fieldname": "password_certificado",
+   "fieldtype": "Password",
+   "label": "Contraseña del Certificado"
+  },
+  {
+   "fieldname": "section_break_18",
+   "fieldtype": "Section Break",
+   "label": "Configuración de Servicios"
+  },
+  {
+   "default": "Pruebas",
+   "fieldname": "ambiente_sunat",
+   "fieldtype": "Select",
+   "label": "Ambiente SUNAT",
+   "options": "Pruebas\nProducción"
+  },
+  {
+   "fieldname": "url_servicio_sunat",
+   "fieldtype": "Data",
+   "label": "URL del Servicio SUNAT"
+  },
+  {
+   "fieldname": "column_break_21",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "0001",
+   "fieldname": "codigo_establecimiento",
+   "fieldtype": "Data",
+   "label": "Código de Establecimiento",
+   "length": 4
+  },
+  {
+   "default": "1",
+   "fieldname": "activo",
+   "fieldtype": "Check",
+   "label": "Activo"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "links": [],
+ "modified": "2025-01-01 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Accounts",
+ "name": "SUNAT Configuration",
+ "naming_rule": "By fieldname",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "read": 1,
+   "role": "Accounts Manager",
+   "write": 1
+  }
+ ],
+ "show_name_in_global_search": 1,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
