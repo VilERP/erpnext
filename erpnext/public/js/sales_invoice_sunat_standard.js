@@ -12,7 +12,7 @@ frappe.ui.form.on('Sales Invoice', {
 
 function send_to_sunat_standard(frm) {
     frappe.call({
-        method: 'erpnext.accounts.doctype.sales_invoice.sunat_integration.send_to_sunat_api',
+        method: 'erpnext.regional.peru.sunat_integration.send_to_sunat_api',
         args: {'sales_invoice': frm.doc.name},
         callback: function(r) {
             if (r.message && r.message.success) {

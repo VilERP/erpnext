@@ -667,3 +667,24 @@ fields_for_group_similar_items = ["qty", "amount"]
 doctype_js = {
     "Sales Invoice": "public/js/sales_invoice_sunat_standard.js"
 }
+
+# Configuración Regional - Perú
+regional_overrides = {
+    "Peru": {
+        "setup": "erpnext.regional.peru.setup.setup"
+    }
+}
+
+# Eventos específicos de Perú
+doc_events = {
+    "Sales Invoice": {
+        "on_submit": [
+            "erpnext.regional.create_transaction_log",
+            "erpnext.regional.italy.utils.sales_invoice_on_submit",
+        ],
+        "on_cancel": [
+            "erpnext.regional.italy.utils.sales_invoice_on_cancel",
+        ],
+        "on_trash": "erpnext.regional.check_deletion_permission",
+    }
+}
