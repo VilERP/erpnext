@@ -256,3 +256,174 @@ def generar_nombre_ple_api(company, libro, fecha, codigo_oportunidad="10", moned
             "success": False,
             "error": str(e)
         }
+
+
+def generate_ple_14_1(company, from_date, to_date):
+    """
+    Generar contenido del archivo PLE 14.1 - Registro de Ventas
+    
+    Args:
+        company (str): Nombre de la empresa
+        from_date (str/date): Fecha inicial
+        to_date (str/date): Fecha final
+    
+    Returns:
+        str: Contenido del archivo TXT con formato PLE 14.1
+    """
+    
+    # Obtener todas las facturas del período
+    invoices = frappe.get_all(
+        "Sales Invoice",
+        filters={
+            "company": company,
+            "posting_date": ["between", [from_date, to_date]],
+            "docstatus": 1  # Solo facturas enviadas
+        },
+        fields=[
+            "name",
+            "posting_date",
+            "custom_sunat_doc_type",
+            "customer",
+            "customer_name",
+            "tax_id",
+            "grand_total",
+            "base_total",
+            "total_taxes_and_charges",
+            "currency"
+        ],
+        order_by="posting_date asc, name asc"
+    )
+    
+    lines = []
+    
+    for idx, invoice in enumerate(invoices, start=1):
+        # Cargar documento completo para obtener más detalles
+        doc = frappe.get_doc("Sales Invoice", invoice.name)
+        
+        # CAMPO 1: Período (AAAAMMDD)
+        period = doc.posting_date.strftime("%Y%m00")
+        
+        # CAMPO 2: Número correlativo (CUO)
+        correlativo = str(idx).zfill(10)
+        
+        # CAMPO 3: Número correlativo del asiento contable (vacío por ahora)
+        asiento = ""
+        
+        # CAMPO 4: Fecha de emisión
+        fecha_emision = doc.posting_date.strftime("%d/%m/%Y")
+        
+        # CAMPO 5: Fecha de vencimiento (igual a emisión si no hay fecha de vencimiento)
+        fecha_vencimiento = doc.due_date.strftime("%d/%m/%Y") if doc.due_date else fecha_emision
+        
+        # CAMPO 6: Tipo de comprobante (01=Factura, 03=Boleta, etc.)
+        tipo_doc = doc.custom_sunat_doc_type or "01"
+        
+        # CAMPO 7: Serie del comprobante
+        serie = doc.name.split("-")[0] if "-" in doc.name else ""
+        
+        # CAMPO 8: Número del comprobante
+        numero = doc.name.split("-")[-1] if "-" in doc.name else doc.name
+        
+        # CAMPO 9: Número consolidado (vacío)
+        consolidado = ""
+        
+        # CAMPO 10: Tipo de documento del cliente (6=RUC, 1=DNI, etc.)
+        tipo_doc_cliente = "6" if doc.tax_id and len(doc.tax_id) == 11 else "1"
+        
+        # CAMPO 11: Número de documento del cliente
+        doc_cliente = doc.tax_id or "00000000"
+        
+        # CAMPO 12: Apellidos y nombres / Razón social del cliente
+        cliente = doc.customer_name or doc.customer
+        
+        # CAMPO 13: Valor exportación (0.00 si no aplica)
+        valor_exportacion = "0.00"
+        
+        # CAMPO 14: Base imponible gravada
+        base_imponible = f"{doc.base_total:.2f}"
+        
+        # CAMPO 15: Descuento (0.00 por ahora)
+        descuento = "0.00"
+        
+        # CAMPO 16: IGV (18%)
+        igv = f"{doc.total_taxes_and_charges:.2f}"
+        
+        # CAMPO 17: Descuento IGV (0.00)
+        descuento_igv = "0.00"
+        
+        # CAMPO 18: Importe total sin IGV por operaciones exoneradas (0.00)
+        exonerado = "0.00"
+        
+        # CAMPO 19: Importe total sin IGV por operaciones inafectas (0.00)
+        inafecto = "0.00"
+        
+        # CAMPO 20: ISC (0.00)
+        isc = "0.00"
+        
+        # CAMPO 21: Base imponible IVAP (0.00)
+        ivap_base = "0.00"
+        
+        # CAMPO 22: IVAP (0.00)
+        ivap = "0.00"
+        
+        # CAMPO 23: ICBPER (0.00)
+        icbper = "0.00"
+        
+        # CAMPO 24: Otros tributos (0.00)
+        otros = "0.00"
+        
+        # CAMPO 25: Importe total del comprobante
+        total = f"{doc.grand_total:.2f}"
+        
+        # CAMPO 26: Código de moneda (PEN, USD, etc.)
+        moneda = doc.currency or "PEN"
+        
+        # CAMPO 27: Tipo de cambio (1.000 si es PEN)
+        tipo_cambio = "1.000"
+        
+        # CAMPO 28-34: Campos adicionales (vacíos por ahora)
+        campos_adicionales = [""] * 7
+        
+        # CAMPO 35: Estado del comprobante (1=Aceptado, 2=Anulado, etc.)
+        estado = "1"
+        
+        # Construir línea (separada por pipe |)
+        line = "|".join([
+            period,
+            correlativo,
+            asiento,
+            fecha_emision,
+            fecha_vencimiento,
+            tipo_doc,
+            serie,
+            numero,
+            consolidado,
+            tipo_doc_cliente,
+            doc_cliente,
+            cliente,
+            valor_exportacion,
+            base_imponible,
+            descuento,
+            igv,
+            descuento_igv,
+            exonerado,
+            inafecto,
+            isc,
+            ivap_base,
+            ivap,
+            icbper,
+            otros,
+            total,
+            moneda,
+            tipo_cambio,
+            *campos_adicionales,
+            estado,
+            ""  # Termina con pipe
+        ])
+        
+        lines.append(line)
+    
+    # Unir todas las líneas con salto de línea
+    content = "\n".join(lines)
+    
+    return content
