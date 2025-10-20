@@ -258,11 +258,9 @@ def generar_nombre_ple_api(company, libro, fecha, codigo_oportunidad="10", moned
         }
 
 
-
 def generate_ple_14_1(company, from_date, to_date):
     """
     Generar contenido del archivo PLE 14.1 - Registro de Ventas
-    Con validaciones completas y manejo de errores
     
     Args:
         company (str): Nombre de la empresa
@@ -272,9 +270,6 @@ def generate_ple_14_1(company, from_date, to_date):
     Returns:
         str: Contenido del archivo TXT con formato PLE 14.1
     """
-    
-    errors = []
-    warnings = []
     
     # Obtener todas las facturas del período
     invoices = frappe.get_all(
@@ -287,7 +282,6 @@ def generate_ple_14_1(company, from_date, to_date):
         fields=[
             "name",
             "posting_date",
-            "due_date",
             "custom_sunat_doc_type",
             "customer",
             "customer_name",
@@ -300,222 +294,136 @@ def generate_ple_14_1(company, from_date, to_date):
         order_by="posting_date asc, name asc"
     )
     
-    if not invoices:
-        return ""  # Sin registros
-    
     lines = []
     
     for idx, invoice in enumerate(invoices, start=1):
-        try:
-            # Cargar documento completo
-            doc = frappe.get_doc("Sales Invoice", invoice.name)
-            
-            # VALIDACIONES
-            validation_errors = validate_invoice_for_ple(doc, idx)
-            if validation_errors:
-                errors.extend(validation_errors)
-                continue  # Saltar esta factura
-            
-            # CAMPO 1: Período (AAAAMMDD)
-            period = doc.posting_date.strftime("%Y%m00")
-            
-            # CAMPO 2: Número correlativo (CUO)
-            correlativo = str(idx).zfill(10)
-            
-            # CAMPO 3: Número correlativo del asiento contable
-            asiento = "M" + str(idx).zfill(9)  # M + 9 dígitos
-            
-            # CAMPO 4: Fecha de emisión
-            fecha_emision = doc.posting_date.strftime("%d/%m/%Y")
-            
-            # CAMPO 5: Fecha de vencimiento
-            fecha_vencimiento = doc.due_date.strftime("%d/%m/%Y") if doc.due_date else fecha_emision
-            
-            # CAMPO 6: Tipo de comprobante
-            tipo_doc = doc.custom_sunat_doc_type or "01"
-            
-            # CAMPO 7: Serie del comprobante
-            serie = extract_serie(doc.name)
-            
-            # CAMPO 8: Número del comprobante
-            numero = extract_numero(doc.name)
-            
-            # CAMPO 9: Número consolidado (vacío)
-            consolidado = ""
-            
-            # CAMPO 10: Tipo de documento del cliente
-            tipo_doc_cliente = get_customer_doc_type(doc.tax_id)
-            
-            # CAMPO 11: Número de documento del cliente
-            doc_cliente = doc.tax_id or "00000000"
-            
-            # CAMPO 12: Apellidos y nombres / Razón social
-            cliente = (doc.customer_name or doc.customer)[:100]  # Max 100 chars
-            
-            # CAMPO 13-25: Valores monetarios
-            valor_exportacion = "0.00"
-            base_imponible = f"{doc.base_total:.2f}"
-            descuento = "0.00"
-            igv = f"{doc.total_taxes_and_charges:.2f}"
-            descuento_igv = "0.00"
-            exonerado = "0.00"
-            inafecto = "0.00"
-            isc = "0.00"
-            ivap_base = "0.00"
-            ivap = "0.00"
-            icbper = "0.00"
-            otros = "0.00"
-            total = f"{doc.grand_total:.2f}"
-            
-            # CAMPO 26: Código de moneda
-            moneda = doc.currency or "PEN"
-            
-            # CAMPO 27: Tipo de cambio
-            tipo_cambio = "1.000" if moneda == "PEN" else get_exchange_rate(doc.posting_date, moneda)
-            
-            # CAMPOS 28-34: Fechas y documentos modificados (vacíos por ahora)
-            fecha_emision_mod = ""
-            tipo_doc_mod = ""
-            serie_mod = ""
-            numero_mod = ""
-            identificador_proy = ""
-            error_tipo_1 = ""
-            error_tipo_2 = ""
-            
-            # CAMPO 35: Estado
-            estado = "1"  # 1=Aceptado, 2=Anulado, 8=Anulado por error tipo 1, 9=Anulado por error tipo 2
-            
-            # Construir línea
-            line = "|".join([
-                period,
-                correlativo,
-                asiento,
-                fecha_emision,
-                fecha_vencimiento,
-                tipo_doc,
-                serie,
-                numero,
-                consolidado,
-                tipo_doc_cliente,
-                doc_cliente,
-                cliente,
-                valor_exportacion,
-                base_imponible,
-                descuento,
-                igv,
-                descuento_igv,
-                exonerado,
-                inafecto,
-                isc,
-                ivap_base,
-                ivap,
-                icbper,
-                otros,
-                total,
-                moneda,
-                tipo_cambio,
-                fecha_emision_mod,
-                tipo_doc_mod,
-                serie_mod,
-                numero_mod,
-                identificador_proy,
-                error_tipo_1,
-                error_tipo_2,
-                estado,
-                ""  # Termina con pipe
-            ])
-            
-            lines.append(line)
-            
-        except Exception as e:
-            error_msg = f"Invoice {invoice.name}: {str(e)}"
-            errors.append(error_msg)
-            frappe.log_error(error_msg, "PLE 14.1 Generation Error")
-            continue
+        # Cargar documento completo para obtener más detalles
+        doc = frappe.get_doc("Sales Invoice", invoice.name)
+        
+        # CAMPO 1: Período (AAAAMMDD)
+        period = doc.posting_date.strftime("%Y%m00")
+        
+        # CAMPO 2: Número correlativo (CUO)
+        correlativo = str(idx).zfill(10)
+        
+        # CAMPO 3: Número correlativo del asiento contable (vacío por ahora)
+        asiento = ""
+        
+        # CAMPO 4: Fecha de emisión
+        fecha_emision = doc.posting_date.strftime("%d/%m/%Y")
+        
+        # CAMPO 5: Fecha de vencimiento (igual a emisión si no hay fecha de vencimiento)
+        fecha_vencimiento = doc.due_date.strftime("%d/%m/%Y") if doc.due_date else fecha_emision
+        
+        # CAMPO 6: Tipo de comprobante (01=Factura, 03=Boleta, etc.)
+        tipo_doc = doc.custom_sunat_doc_type or "01"
+        
+        # CAMPO 7: Serie del comprobante
+        serie = doc.name.split("-")[0] if "-" in doc.name else ""
+        
+        # CAMPO 8: Número del comprobante
+        numero = doc.name.split("-")[-1] if "-" in doc.name else doc.name
+        
+        # CAMPO 9: Número consolidado (vacío)
+        consolidado = ""
+        
+        # CAMPO 10: Tipo de documento del cliente (6=RUC, 1=DNI, etc.)
+        tipo_doc_cliente = "6" if doc.tax_id and len(doc.tax_id) == 11 else "1"
+        
+        # CAMPO 11: Número de documento del cliente
+        doc_cliente = doc.tax_id or "00000000"
+        
+        # CAMPO 12: Apellidos y nombres / Razón social del cliente
+        cliente = doc.customer_name or doc.customer
+        
+        # CAMPO 13: Valor exportación (0.00 si no aplica)
+        valor_exportacion = "0.00"
+        
+        # CAMPO 14: Base imponible gravada
+        base_imponible = f"{doc.base_total:.2f}"
+        
+        # CAMPO 15: Descuento (0.00 por ahora)
+        descuento = "0.00"
+        
+        # CAMPO 16: IGV (18%)
+        igv = f"{doc.total_taxes_and_charges:.2f}"
+        
+        # CAMPO 17: Descuento IGV (0.00)
+        descuento_igv = "0.00"
+        
+        # CAMPO 18: Importe total sin IGV por operaciones exoneradas (0.00)
+        exonerado = "0.00"
+        
+        # CAMPO 19: Importe total sin IGV por operaciones inafectas (0.00)
+        inafecto = "0.00"
+        
+        # CAMPO 20: ISC (0.00)
+        isc = "0.00"
+        
+        # CAMPO 21: Base imponible IVAP (0.00)
+        ivap_base = "0.00"
+        
+        # CAMPO 22: IVAP (0.00)
+        ivap = "0.00"
+        
+        # CAMPO 23: ICBPER (0.00)
+        icbper = "0.00"
+        
+        # CAMPO 24: Otros tributos (0.00)
+        otros = "0.00"
+        
+        # CAMPO 25: Importe total del comprobante
+        total = f"{doc.grand_total:.2f}"
+        
+        # CAMPO 26: Código de moneda (PEN, USD, etc.)
+        moneda = doc.currency or "PEN"
+        
+        # CAMPO 27: Tipo de cambio (1.000 si es PEN)
+        tipo_cambio = "1.000"
+        
+        # CAMPO 28-34: Campos adicionales (vacíos por ahora)
+        campos_adicionales = [""] * 7
+        
+        # CAMPO 35: Estado del comprobante (1=Aceptado, 2=Anulado, etc.)
+        estado = "1"
+        
+        # Construir línea (separada por pipe |)
+        line = "|".join([
+            period,
+            correlativo,
+            asiento,
+            fecha_emision,
+            fecha_vencimiento,
+            tipo_doc,
+            serie,
+            numero,
+            consolidado,
+            tipo_doc_cliente,
+            doc_cliente,
+            cliente,
+            valor_exportacion,
+            base_imponible,
+            descuento,
+            igv,
+            descuento_igv,
+            exonerado,
+            inafecto,
+            isc,
+            ivap_base,
+            ivap,
+            icbper,
+            otros,
+            total,
+            moneda,
+            tipo_cambio,
+            *campos_adicionales,
+            estado,
+            ""  # Termina con pipe
+        ])
+        
+        lines.append(line)
     
-    # Registrar errores si los hay
-    if errors:
-        error_log = "\n".join(errors)
-        frappe.log_error(f"PLE 14.1 Generation Errors:\n{error_log}", "PLE Errors")
-        frappe.msgprint(
-            _("Generated with {0} errors. Check Error Log for details.").format(len(errors)),
-            indicator="orange"
-        )
-    
-    # Unir todas las líneas
+    # Unir todas las líneas con salto de línea
     content = "\n".join(lines)
+    
     return content
-
-
-def validate_invoice_for_ple(doc, line_number):
-    """Validar que una factura tenga todos los datos necesarios para PLE"""
-    errors = []
-    
-    # Validar tipo de documento SUNAT
-    if not doc.custom_sunat_doc_type:
-        errors.append(f"Line {line_number} - Invoice {doc.name}: Missing SUNAT Document Type")
-    
-    # Validar cliente tenga documento
-    if not doc.tax_id:
-        errors.append(f"Line {line_number} - Invoice {doc.name}: Customer {doc.customer} has no Tax ID")
-    elif len(doc.tax_id) < 8:
-        errors.append(f"Line {line_number} - Invoice {doc.name}: Invalid Tax ID length: {doc.tax_id}")
-    
-    # Validar que tenga nombre de cliente
-    if not doc.customer_name and not doc.customer:
-        errors.append(f"Line {line_number} - Invoice {doc.name}: Missing customer name")
-    
-    # Validar montos
-    if doc.grand_total <= 0:
-        errors.append(f"Line {line_number} - Invoice {doc.name}: Invalid grand_total: {doc.grand_total}")
-    
-    return errors
-
-
-def extract_serie(invoice_name):
-    """Extraer serie del nombre de factura"""
-    if "-" in invoice_name:
-        parts = invoice_name.split("-")
-        # Formato típico: ACC-SINV-2025-00001
-        if len(parts) >= 2:
-            return "-".join(parts[:-1])  # Todo excepto el último
-    return "S001"  # Serie por defecto
-
-
-def extract_numero(invoice_name):
-    """Extraer número del nombre de factura"""
-    if "-" in invoice_name:
-        return invoice_name.split("-")[-1]
-    return invoice_name
-
-
-def get_customer_doc_type(tax_id):
-    """Determinar tipo de documento del cliente según longitud"""
-    if not tax_id:
-        return "0"  # Sin documento
-    
-    length = len(tax_id)
-    if length == 11:
-        return "6"  # RUC
-    elif length == 8:
-        return "1"  # DNI
-    elif length == 12:
-        return "4"  # Carnet de extranjería
-    else:
-        return "0"  # Otros
-
-
-def get_exchange_rate(date, currency):
-    """Obtener tipo de cambio para una fecha"""
-    try:
-        rate = frappe.db.get_value(
-            "Currency Exchange",
-            {"date": date, "from_currency": currency, "to_currency": "PEN"},
-            "exchange_rate"
-        )
-        if rate:
-            return f"{rate:.3f}"
-    except:
-        pass
-    
-    return "1.000"  # Default
