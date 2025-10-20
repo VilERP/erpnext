@@ -1158,3 +1158,9 @@ var select_loyalty_program = function (frm, loyalty_programs) {
 
 	dialog.show();
 };
+
+
+
+
+
+

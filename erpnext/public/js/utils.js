@@ -1289,3 +1289,4 @@ $.extend(erpnext.stock.utils, {
 		});
 	},
 });
+
