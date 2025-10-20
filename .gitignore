@@ -17,3 +17,7 @@ __pycache__
 .vscode/
 node_modules/
 .backportrc.json
+# Evitar carpetas temporales de DocType
+*___*/
+__pycache__/
+*.pyc
