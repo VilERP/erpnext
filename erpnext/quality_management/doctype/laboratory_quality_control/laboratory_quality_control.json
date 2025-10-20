@@ -3,9 +3,11 @@
  "allow_rename": 1,
  "autoname": "naming_series:",
  "creation": "2025-09-19 18:10:15.303312",
+"description": "Control de Calidad de Laboratorio",
  "doctype": "DocType",
  "editable_grid": 1,
  "engine": "InnoDB",
+ "name": "Laboratory Quality Control",
  "field_order": [
   "naming_series",
   "title",
