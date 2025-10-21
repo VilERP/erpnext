@@ -662,3 +662,122 @@ def generate_ple_8_1(company, from_date, to_date):
             continue
     
     return "\n".join(lines)
+
+
+def generate_ple_5_1(company, from_date, to_date):
+    """
+    Generar contenido del archivo PLE 5.1 - Libro Diario
+    
+    Args:
+        company (str): Nombre de la empresa
+        from_date (str/date): Fecha inicial
+        to_date (str/date): Fecha final
+    
+    Returns:
+        str: Contenido del archivo TXT con formato PLE 5.1
+    """
+    
+    # Obtener todos los asientos contables del período
+    gl_entries = frappe.get_all(
+        "GL Entry",
+        filters={
+            "company": company,
+            "posting_date": ["between", [from_date, to_date]],
+            "is_cancelled": 0
+        },
+        fields=[
+            "name",
+            "posting_date",
+            "account",
+            "debit",
+            "credit",
+            "voucher_type",
+            "voucher_no",
+            "against",
+            "remarks",
+            "party_type",
+            "party",
+            "cost_center"
+        ],
+        order_by="posting_date asc, name asc"
+    )
+    
+    if not gl_entries:
+        return ""
+    
+    lines = []
+    
+    for idx, entry in enumerate(gl_entries, start=1):
+        try:
+            # CAMPO 1: Período
+            period = entry.posting_date.strftime("%Y%m00")
+            
+            # CAMPO 2: Correlativo
+            correlativo = str(idx).zfill(10)
+            
+            # CAMPO 3: Fecha de operación
+            fecha_operacion = entry.posting_date.strftime("%d/%m/%Y")
+            
+            # CAMPO 4: Glosa
+            glosa = (entry.remarks or entry.voucher_type or "")[:100]
+            
+            # CAMPO 5: Código de cuenta contable
+            codigo_cuenta = entry.account or ""
+            
+            # CAMPO 6: Código de centro de costos
+            centro_costos = entry.cost_center or ""
+            
+            # CAMPO 7: Código de moneda
+            moneda = "PEN"  # Por defecto soles
+            
+            # CAMPO 8: Tipo de cambio
+            tipo_cambio = "1.000"
+            
+            # CAMPO 9: Monto en moneda extranjera (vacío para PEN)
+            monto_extranjero = ""
+            
+            # CAMPO 10: Debe
+            debe = f"{entry.debit:.2f}" if entry.debit else "0.00"
+            
+            # CAMPO 11: Haber
+            haber = f"{entry.credit:.2f}" if entry.credit else "0.00"
+            
+            # CAMPO 12: Número de comprobante
+            numero_comprobante = entry.voucher_no or ""
+            
+            # CAMPO 13: Fecha de comprobante
+            fecha_comprobante = entry.posting_date.strftime("%d/%m/%Y")
+            
+            # CAMPO 14: Código de operación
+            codigo_operacion = "1"  # Por defecto operación normal
+            
+            # CAMPO 15: Estado
+            estado = "1"
+            
+            # Construir línea
+            line = "|".join([
+                period,
+                correlativo,
+                fecha_operacion,
+                glosa,
+                codigo_cuenta,
+                centro_costos,
+                moneda,
+                tipo_cambio,
+                monto_extranjero,
+                debe,
+                haber,
+                numero_comprobante,
+                fecha_comprobante,
+                codigo_operacion,
+                estado,
+                ""
+            ])
+            
+            lines.append(line)
+            
+        except Exception as e:
+            frappe.log_error(f"Error PLE 5.1 - GL Entry {entry.name}: {str(e)}", "PLE 5.1 Error")
+            continue
+    
+    return "\n".join(lines)
