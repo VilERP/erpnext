@@ -519,3 +519,146 @@ def get_exchange_rate(date, currency):
         pass
     
     return "1.000"  # Default
+
+
+def generate_ple_8_1(company, from_date, to_date):
+    """
+    Generar contenido del archivo PLE 8.1 - Registro de Compras
+    
+    Args:
+        company (str): Nombre de la empresa
+        from_date (str/date): Fecha inicial
+        to_date (str/date): Fecha final
+    
+    Returns:
+        str: Contenido del archivo TXT con formato PLE 8.1
+    """
+    
+    # Obtener todas las facturas de compra del período
+    invoices = frappe.get_all(
+        "Purchase Invoice",
+        filters={
+            "company": company,
+            "posting_date": ["between", [from_date, to_date]],
+            "docstatus": 1
+        },
+        fields=[
+            "name",
+            "posting_date",
+            "bill_date",
+            "supplier",
+            "supplier_name",
+            "tax_id",
+            "grand_total",
+            "base_total",
+            "total_taxes_and_charges",
+            "currency"
+        ],
+        order_by="posting_date asc, name asc"
+    )
+    
+    if not invoices:
+        return ""
+    
+    lines = []
+    
+    for idx, invoice in enumerate(invoices, start=1):
+        try:
+            doc = frappe.get_doc("Purchase Invoice", invoice.name)
+            
+            # Validar datos mínimos
+            if not doc.tax_id:
+                continue  # Saltar si no tiene RUC del proveedor
+            
+            # CAMPO 1: Período
+            period = doc.posting_date.strftime("%Y%m00")
+            
+            # CAMPO 2: Correlativo
+            correlativo = str(idx).zfill(10)
+            
+            # CAMPO 3: Asiento contable
+            asiento = "M" + str(idx).zfill(9)
+            
+            # CAMPO 4: Fecha de emisión (bill_date o posting_date)
+            fecha_emision = (doc.bill_date or doc.posting_date).strftime("%d/%m/%Y")
+            
+            # CAMPO 5: Fecha de vencimiento
+            fecha_vencimiento = doc.due_date.strftime("%d/%m/%Y") if doc.due_date else fecha_emision
+            
+            # CAMPO 6: Tipo de comprobante (01=Factura, etc)
+            tipo_doc = "01"  # Por defecto factura
+            
+            # CAMPO 7: Serie
+            serie = extract_serie(doc.name)
+            
+            # CAMPO 8: Año emisión DUA
+            anio_dua = ""
+            
+            # CAMPO 9: Número
+            numero = extract_numero(doc.name)
+            
+            # CAMPO 10: Número final (rango)
+            numero_final = ""
+            
+            # CAMPO 11: Tipo documento proveedor
+            tipo_doc_proveedor = get_customer_doc_type(doc.tax_id)
+            
+            # CAMPO 12: Número documento proveedor
+            doc_proveedor = doc.tax_id or "00000000"
+            
+            # CAMPO 13: Razón social proveedor
+            proveedor = (doc.supplier_name or doc.supplier)[:100]
+            
+            # CAMPOS 14-24: Valores monetarios
+            base_imponible = f"{doc.base_total:.2f}"
+            igv = f"{doc.total_taxes_and_charges:.2f}"
+            total = f"{doc.grand_total:.2f}"
+            
+            # Campos vacíos
+            otros_campos = ["0.00"] * 8  # Base no gravada, ISC, ICBPER, etc
+            
+            # CAMPO 25: Moneda
+            moneda = doc.currency or "PEN"
+            
+            # CAMPO 26: Tipo cambio
+            tipo_cambio = "1.000" if moneda == "PEN" else get_exchange_rate(doc.posting_date, moneda)
+            
+            # CAMPOS 27-42: Varios campos adicionales (mayoría vacíos)
+            campos_adicionales = [""] * 16
+            
+            # CAMPO 43: Estado
+            estado = "1"
+            
+            # Construir línea
+            line = "|".join([
+                period,
+                correlativo,
+                asiento,
+                fecha_emision,
+                fecha_vencimiento,
+                tipo_doc,
+                serie,
+                anio_dua,
+                numero,
+                numero_final,
+                tipo_doc_proveedor,
+                doc_proveedor,
+                proveedor,
+                base_imponible,
+                *otros_campos,
+                igv,
+                total,
+                moneda,
+                tipo_cambio,
+                *campos_adicionales,
+                estado,
+                ""
+            ])
+            
+            lines.append(line)
+            
+        except Exception as e:
+            frappe.log_error(f"Error PLE 8.1 - Invoice {invoice.name}: {str(e)}", "PLE 8.1 Error")
+            continue
+    
+    return "\n".join(lines)
