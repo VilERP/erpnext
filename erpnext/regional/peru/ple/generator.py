@@ -781,3 +781,120 @@ def generate_ple_5_1(company, from_date, to_date):
             continue
     
     return "\n".join(lines)
+
+
+def generate_ple_13_1(company, from_date, to_date):
+    """
+    Generar contenido del archivo PLE 13.1 - Kardex Valorizado
+    
+    Args:
+        company (str): Nombre de la empresa
+        from_date (str/date): Fecha inicial
+        to_date (str/date): Fecha final
+    
+    Returns:
+        str: Contenido del archivo TXT con formato PLE 13.1
+    """
+    
+    # Obtener todos los movimientos de inventario del período
+    stock_entries = frappe.get_all(
+        "Stock Ledger Entry",
+        filters={
+            "company": company,
+            "posting_date": ["between", [from_date, to_date]]
+        },
+        fields=[
+            "name",
+            "posting_date",
+            "item_code",
+            # "item_name",  # Campo no disponible en Stock Ledger Entry
+            "warehouse",
+            "actual_qty",
+            "valuation_rate",
+            "stock_value",
+            "voucher_type",
+            "voucher_no",
+            "is_cancelled"
+        ],
+        order_by="posting_date asc, name asc"
+    )
+    
+    if not stock_entries:
+        return ""
+    
+    lines = []
+    
+    for idx, entry in enumerate(stock_entries, start=1):
+        try:
+            # Saltar entradas canceladas
+            if entry.is_cancelled:
+                continue
+                
+            # CAMPO 1: Período
+            period = entry.posting_date.strftime("%Y%m00")
+            
+            # CAMPO 2: Correlativo
+            correlativo = str(idx).zfill(10)
+            
+            # CAMPO 3: Fecha de operación
+            fecha_operacion = entry.posting_date.strftime("%d/%m/%Y")
+            
+            # CAMPO 4: Código de producto
+            codigo_producto = entry.item_code or ""
+            
+            # CAMPO 5: Descripción del producto
+            descripcion_producto = (entry.item_code or "")[:100]  # Usar item_code como descripción
+            
+            # CAMPO 6: Código de almacén
+            codigo_almacen = entry.warehouse or ""
+            
+            # CAMPO 7: Cantidad
+            cantidad = f"{entry.actual_qty:.2f}" if entry.actual_qty else "0.00"
+            
+            # CAMPO 8: Precio unitario
+            precio_unitario = f"{entry.valuation_rate:.2f}" if entry.valuation_rate else "0.00"
+            
+            # CAMPO 9: Valor total
+            valor_total = f"{entry.stock_value:.2f}" if entry.stock_value else "0.00"
+            
+            # CAMPO 10: Tipo de operación
+            tipo_operacion = "1" if entry.actual_qty > 0 else "2"  # 1=Entrada, 2=Salida
+            
+            # CAMPO 11: Número de comprobante
+            numero_comprobante = entry.voucher_no or ""
+            
+            # CAMPO 12: Fecha de comprobante
+            fecha_comprobante = entry.posting_date.strftime("%d/%m/%Y")
+            
+            # CAMPO 13: Código de operación
+            codigo_operacion = "1"  # Por defecto operación normal
+            
+            # CAMPO 14: Estado
+            estado = "1"
+            
+            # Construir línea
+            line = "|".join([
+                period,
+                correlativo,
+                fecha_operacion,
+                codigo_producto,
+                descripcion_producto,
+                codigo_almacen,
+                cantidad,
+                precio_unitario,
+                valor_total,
+                tipo_operacion,
+                numero_comprobante,
+                fecha_comprobante,
+                codigo_operacion,
+                estado,
+                ""
+            ])
+            
+            lines.append(line)
+            
+        except Exception as e:
+            frappe.log_error(f"Error PLE 13.1 - Stock Entry {entry.name}: {str(e)}", "PLE 13.1 Error")
+            continue
+    
+    return "\n".join(lines)

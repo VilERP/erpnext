@@ -5,7 +5,7 @@ import frappe
 from frappe.model.document import Document
 from frappe import _
 from datetime import datetime
-from erpnext.regional.peru.ple.generator import generate_ple_14_1, generate_ple_8_1, generate_ple_5_1
+from erpnext.regional.peru.ple.generator import generate_ple_14_1, generate_ple_8_1, generate_ple_5_1, generate_ple_13_1
 
 
 class PLEReport(Document):
@@ -65,6 +65,8 @@ class PLEReport(Document):
             libro = "080100"
         elif self.report_type == "5.1 - Libro Diario":
             libro = "050100"
+        elif self.report_type == "13.1 - Kardex Valorizado":
+            libro = "130100"
         else:
             libro = "000000"
         
@@ -89,6 +91,12 @@ class PLEReport(Document):
                 )
             elif self.report_type == "5.1 - Libro Diario":
                 content = generate_ple_5_1(
+                    company=self.company,
+                    from_date=self.from_date,
+                    to_date=self.to_date
+                )
+            elif self.report_type == "13.1 - Kardex Valorizado":
+                content = generate_ple_13_1(
                     company=self.company,
                     from_date=self.from_date,
                     to_date=self.to_date
