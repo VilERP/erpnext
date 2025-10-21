@@ -48,7 +48,7 @@
       "fieldtype": "Select",
       "in_list_view": 1,
       "label": "Report Type",
-      "options": "14.1 - Registro de Ventas\n8.1 - Registro de Compras\n5.1 - Libro Diario\n13.1 - Kardex Valorizado",
+      "options": "14.1 - Registro de Ventas\n8.1 - Registro de Compras\n5.1 - Libro Diario\n13.1 - Kardex Valorizado\n1.1 - Caja y Bancos",
       "reqd": 1
     },
     {

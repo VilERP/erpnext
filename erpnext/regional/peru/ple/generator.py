@@ -898,3 +898,123 @@ def generate_ple_13_1(company, from_date, to_date):
             continue
     
     return "\n".join(lines)
+
+
+def generate_ple_1_1(company, from_date, to_date):
+    """
+    Generar contenido del archivo PLE 1.1 - Caja y Bancos
+    
+    Args:
+        company (str): Nombre de la empresa
+        from_date (str/date): Fecha inicial
+        to_date (str/date): Fecha final
+    
+    Returns:
+        str: Contenido del archivo TXT con formato PLE 1.1
+    """
+    
+    # Obtener operaciones de caja y bancos del período
+    # Buscar en Payment Entry y Journal Entry con cuentas de caja/bancos
+    gl_entries = frappe.get_all(
+        "GL Entry",
+        filters={
+            "company": company,
+            "posting_date": ["between", [from_date, to_date]],
+            "is_cancelled": 0,
+            "account": ["in", get_cash_bank_accounts(company)]
+        },
+        fields=[
+            "name",
+            "posting_date",
+            "account",
+            "debit",
+            "credit",
+            "voucher_type",
+            "voucher_no",
+            "against",
+            "remarks",
+            "party_type",
+            "party"
+        ],
+        order_by="posting_date asc, name asc"
+    )
+    
+    if not gl_entries:
+        return ""
+    
+    lines = []
+    
+    for idx, entry in enumerate(gl_entries, start=1):
+        try:
+            # CAMPO 1: Período
+            period = entry.posting_date.strftime("%Y%m00")
+            
+            # CAMPO 2: Correlativo
+            correlativo = str(idx).zfill(10)
+            
+            # CAMPO 3: Fecha de operación
+            fecha_operacion = entry.posting_date.strftime("%d/%m/%Y")
+            
+            # CAMPO 4: Código de cuenta
+            codigo_cuenta = entry.account or ""
+            
+            # CAMPO 5: Descripción de la operación
+            descripcion = (entry.remarks or entry.voucher_type or "")[:100]
+            
+            # CAMPO 6: Tipo de operación
+            tipo_operacion = "1" if entry.debit > 0 else "2"  # 1=Ingreso, 2=Egreso
+            
+            # CAMPO 7: Monto
+            monto = f"{entry.debit + entry.credit:.2f}" if (entry.debit + entry.credit) > 0 else "0.00"
+            
+            # CAMPO 8: Número de comprobante
+            numero_comprobante = entry.voucher_no or ""
+            
+            # CAMPO 9: Fecha de comprobante
+            fecha_comprobante = entry.posting_date.strftime("%d/%m/%Y")
+            
+            # CAMPO 10: Código de operación
+            codigo_operacion = "1"  # Por defecto operación normal
+            
+            # CAMPO 11: Estado
+            estado = "1"
+            
+            # Construir línea
+            line = "|".join([
+                period,
+                correlativo,
+                fecha_operacion,
+                codigo_cuenta,
+                descripcion,
+                tipo_operacion,
+                monto,
+                numero_comprobante,
+                fecha_comprobante,
+                codigo_operacion,
+                estado,
+                ""
+            ])
+            
+            lines.append(line)
+            
+        except Exception as e:
+            frappe.log_error(f"Error PLE 1.1 - GL Entry {entry.name}: {str(e)}", "PLE 1.1 Error")
+            continue
+    
+    return "\n".join(lines)
+
+
+def get_cash_bank_accounts(company):
+    """
+    Obtener cuentas de caja y bancos de la empresa
+    """
+    accounts = frappe.get_all(
+        "Account",
+        filters={
+            "company": company,
+            "account_type": ["in", ["Bank", "Cash"]],
+            "is_group": 0
+        },
+        fields=["name"]
+    )
+    return [acc.name for acc in accounts]
