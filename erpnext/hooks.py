@@ -665,7 +665,8 @@ fields_for_group_similar_items = ["qty", "amount"]
 
 
 doctype_js = {
-    "Sales Invoice": "public/js/sales_invoice_sunat_standard.js"
+    "Sales Invoice": "public/js/sales_invoice_sunat_standard.js",
+    "Company": "setup/doctype/company/company_sunat.js"
 }
 
 # Configuración Regional - Perú
