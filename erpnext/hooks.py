@@ -689,3 +689,9 @@ doc_events = {
         "on_trash": "erpnext.regional.check_deletion_permission",
     }
 }
+
+# Fixtures para datos maestros SUNAT
+fixtures = [
+    {"dt": "SUNAT Document Type", "or_filters": [{"name": ["like", "%"]}]},
+    {"dt": "SUNAT Payment Method", "or_filters": [{"name": ["like", "%"]}]}
+]

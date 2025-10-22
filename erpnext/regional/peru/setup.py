@@ -4,10 +4,13 @@
 import frappe
 from frappe import _
 from frappe.custom.doctype.custom_field.custom_field import create_custom_fields
+from frappe.utils.fixtures import sync_fixtures
+import os
 
 def setup(company=None, patch=True):
     """Setup para Perú - SUNAT"""
     make_custom_fields()
+    sync_fixtures("erpnext")  # Cargar fixtures de SUNAT
     load_sunat_master_data()
 
 def make_custom_fields(update=True):
